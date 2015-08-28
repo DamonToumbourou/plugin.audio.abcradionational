@@ -1,31 +1,46 @@
 import requests
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import re
 
 ABC_URL= "http://abc.net.au/radionational"
 
+
 def get_podcasts(url_id):
-    """
-    returns playable podcasts links from ABC website
-    """
+    
+    output = []
+
+    # scrape site and return data in array
     url = ABC_URL + url_id
     page = requests.get(url)
-    soup = BeautifulSoup(page.text)
-    urls = soup.findAll('a', 'ico-download')
-    titles = soup.findAll('h3', 'title')
+    soup = BeautifulSoup(page.text, 'html.parser')
+        
+    for content in soup.find_all('div', class_= "cs-teaser"):
+        link = content.find('a', {'class': 'ico ico-download'})
+        link = link.get('href')
+        
+        title = content.find('h3', {'class': 'title'})
+        title = title.get_text()
 
-    title_out = []
-    for title in titles:
-        title_out.append(re.sub('&#039;', "'", title.text))
+        desc = content.find('div', {'class': 'summary'})
+        desc = desc.get_text()
+        print desc
 
-    output = []
-    for i in range(len(title_out)):
-		url = urls[i]['href']
-		title = title_out[i]
-		output.append({'url': url, 'title': title})
-   
-    return output
+        try:
+            thumbnail = content.find('img')
+            thumbnail = thumbnail.get('src')
+        except AttributeError:
+            continue
 
+        item = {
+                'url': link,
+                'title': title,
+                'desc': desc,
+                'thumbnail': thumbnail
+        }
+
+        output.append(item) 
+
+get_podcasts("/podcasts")
 
 def podcasts_get(url):
     """

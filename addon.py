@@ -22,7 +22,9 @@ def just_in():
 
     items = [{
         'label': subject['title'],
+        'thumbnail': subject['thumbnail'],
         'path': subject['url'],
+        'info': subject['desc'],
         'is_playable': True,
     } for subject in subjects]
 
