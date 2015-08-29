@@ -1,6 +1,8 @@
 import requests
-from bs4 import BeautifulSoup
 import re
+from bs4 import BeautifulSoup
+
+
 
 ABC_URL= "http://abc.net.au/radionational"
 
@@ -23,7 +25,6 @@ def get_podcasts(url_id):
 
         desc = content.find('div', {'class': 'summary'})
         desc = desc.get_text()
-        print desc
 
         try:
             thumbnail = content.find('img')
@@ -40,7 +41,8 @@ def get_podcasts(url_id):
 
         output.append(item) 
 
-get_podcasts("/podcasts")
+    return output
+
 
 def podcasts_get(url):
     """
