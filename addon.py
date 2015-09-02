@@ -1,10 +1,15 @@
 from xbmcswift2 import Plugin, xbmcgui
 from resources.lib import abcradionational
 
+
 plugin = Plugin()
+
+URL = "http://abc.net.au/radionational"
+
 
 @plugin.route('/')
 def main_menu():
+
     items = [
         {'label': plugin.get_string(30000), 'path': "http://www.abc.net.au/res/streaming/audio/aac/news_radio.pls",
          'is_playable': True},
@@ -18,15 +23,15 @@ def main_menu():
 
 @plugin.route('/just_in/')
 def just_in():
-    subjects = abcradionational.get_podcasts("/podcasts")
 
-    items = [{
-        'label': subject['title'],
-        'thumbnail': subject['thumbnail'],
-        'path': subject['url'],
-        'info': subject['desc'],
-        'is_playable': True,
-    } for subject in subjects]
+    content = []
+
+    soup = abcradionational.get_soup("http://abc.net.au/radionational/podcasts")
+    
+    subjects = abcradionational.find_subjects(soup)
+    
+    items = abcradionational.list_subjects(subjects)
+
 
     return items
 
@@ -37,12 +42,13 @@ def subject_list():
 
     items = [{
         'label': subject['title'],
-        'path': plugin.url_for('subject_item', url=subject['url']),
-    } for subject in subjects]
+        'thumbnail': subject['thumbnail'],
+        'path': subject['url'], 
+        'info': subject['desc'],
+        'is_playable': True,
+    } for subject in subjects] 
 
-    sorted_items = sorted(items, key=lambda item: item['label'])
-
-    return sorted_items
+    return items
 
 
 @plugin.route('/subject_item/<url>/')
