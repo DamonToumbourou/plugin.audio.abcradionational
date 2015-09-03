@@ -12,10 +12,9 @@ def main_menu():
 
     items = [
         {'label': plugin.get_string(30000), 'path': "http://www.abc.net.au/res/streaming/audio/aac/news_radio.pls",
-         'is_playable': True},
+            'thumbnail': "http://abc.net.au/res/sites/rn/css/img/rn-icon.png", 'is_playable': True},
         {'label': plugin.get_string(30001), 'path': plugin.url_for('just_in')},
-        {'label': plugin.get_string(30002), 'path': plugin.url_for('subject_list')},
-        {'label': plugin.get_string(30003), 'path': plugin.url_for('program_menu')},
+        {'label': plugin.get_string(30002), 'path': plugin.url_for('subject_list')}
     ]
 
     return items
@@ -24,13 +23,11 @@ def main_menu():
 @plugin.route('/just_in/')
 def just_in():
 
-    content = []
-
-    soup = abcradionational.get_soup("http://abc.net.au/radionational/podcasts")
+    soup = abcradionational.get_soup(URL + "/podcasts")
     
-    subjects = abcradionational.find_subjects(soup)
+    playable_podcast = abcradionational.get_playable_podcast(soup)
     
-    items = abcradionational.list_subjects(subjects)
+    items = abcradionational.compile_playable_podcast(playable_podcast)
 
 
     return items
@@ -38,56 +35,34 @@ def just_in():
 
 @plugin.route('/subject_list/')
 def subject_list():
-    subjects = abcradionational.get_subjects("/podcasts/subjects")
+   
+    soup = abcradionational.get_soup(URL + "/podcasts/subjects")
+    
+    subject_heading = abcradionational.get_subject_heading(soup)
 
-    items = [{
-        'label': subject['title'],
-        'thumbnail': subject['thumbnail'],
-        'path': subject['url'], 
-        'info': subject['desc'],
-        'is_playable': True,
-    } for subject in subjects] 
+    items = []
+    
+    for subject in subject_heading:
+        items.append({
+            'label': subject['title'],
+            'path': plugin.url_for('subject_item', url=subject['url']),
+        })
 
     return items
 
 
 @plugin.route('/subject_item/<url>/')
 def subject_item(url):
-    subjects = abcradionational.podcasts_get(url)
 
-    items = [{
-        'label': subject['title'],
-        'path': subject['url'],
-        'is_playable': True,
-    } for subject in subjects]
+    soup = abcradionational.get_soup(url)
+    
+    playable_podcast = abcradionational.get_playable_podcast(soup)
+
+    items = abcradionational.compile_playable_podcast(playable_podcast)
+
 
     return items
 
-             
-@plugin.route('/program_menu/')
-def program_menu():
-    subjects = abcradionational.get_programs("/podcasts/program")
-
-    items = [{
-        'label': subject['title'],
-        'path': plugin.url_for('program_item',url=subject['url']),
-    } for subject in subjects]
-
-    #sorted_items = sorted(items, key=lambda item: item['label'])
-
-    return items
-
-
-@plugin.route('/program_item/<url>/')
-def program_item(url):
-    programs = abcradionational.podcasts_get(url)
-
-    items = [{
-        'label': program['title'],
-        'path': program['url'],
-        'is_playable': True,
-    } for program in programs]
-    return items
 
 
 if __name__ == '__main__':
