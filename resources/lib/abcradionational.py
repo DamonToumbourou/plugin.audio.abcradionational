@@ -8,9 +8,11 @@ def get_soup(url):
     """
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
-
+    
+    print "type: ", type(soup)
     return soup
 
+get_soup("http://abc.net.au/radionational/podcasts")
 
 def get_playable_podcast(soup):
     """
