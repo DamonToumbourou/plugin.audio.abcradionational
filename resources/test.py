@@ -2,6 +2,6 @@ from resources.lib import abcradionational
 
 
 def test_get_podcasts_returns_list():
-    podcasts = abcradionational.get_podcasts("/podcasts")
+    podcast = abcradionational.get_playable_podcast("/podcasts")
 
-    assert type(podcasts) == list
+    assert type(podcast) == list

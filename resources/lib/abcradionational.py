@@ -51,7 +51,7 @@ def get_playable_podcast(soup):
     return subjects
 
 
-def get_subject_heading(soup):
+def get_podcast_heading(soup):
     """
     @para: parsed html page
     """
